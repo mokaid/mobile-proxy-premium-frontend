@@ -1,160 +1,17 @@
 import React, { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import apiCall from './ApiCall';
-
+import countryList from './countries';
 // Utility function to introduce delay
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const countryList = {
-  usa: "USA",
-  canada: "Canada",
-  "united kingdom": "United Kingdom",
-  germany: "Germany",
-  france: "France",
-  spain: "Spain",
-  italy: "Italy",
-  sweden: "Sweden",
-  greece: "Greece",
-  portugal: "Portugal",
-  netherlands: "Netherlands",
-  belgium: "Belgium",
-  russia: "Russia",
-  ukraine: "Ukraine",
-  poland: "Poland",
-  israel: "Israel",
-  turkey: "Turkey",
-  australia: "Australia",
-  malaysia: "Malaysia",
-  thailand: "Thailand",
-  "south korea": "South Korea",
-  japan: "Japan",
-  philippines: "Philippines",
-  singapore: "Singapore",
-  china: "China",
-  "hong kong": "Hong Kong",
-  taiwan: "Taiwan",
-  india: "India",
-  pakistan: "Pakistan",
-  iran: "Iran",
-  indonesia: "Indonesia",
-  azerbaijan: "Azerbaijan",
-  kazakhstan: "Kazakhstan",
-  uae: "UAE",
-  mexico: "Mexico",
-  brazil: "Brazil",
-  argentina: "Argentina",
-  chile: "Chile",
-  peru: "Peru",
-  ecuador: "Ecuador",
-  colombia: "Colombia",
-  "south africa": "South Africa",
-  egypt: "Egypt",
-  "saudi arabia": "Saudi Arabia",
-  denmark: "Denmark",
-  angola: "Angola",
-  cameroon: "Cameroon",
-  "central african republic": "Central African Republic",
-  chad: "Chad",
-  benin: "Benin",
-  ethiopia: "Ethiopia",
-  djibouti: "Djibouti",
-  gambia: "Gambia",
-  ghana: "Ghana",
-  "côte d'ivoire": "Côte d'Ivoire",
-  kenya: "Kenya",
-  liberia: "Liberia",
-  madagascar: "Madagascar",
-  mali: "Mali",
-  mauritania: "Mauritania",
-  mauritius: "Mauritius",
-  morocco: "Morocco",
-  mozambique: "Mozambique",
-  nigeria: "Nigeria",
-  senegal: "Senegal",
-  seychelles: "Seychelles",
-  zimbabwe: "Zimbabwe",
-  "south sudan": "South Sudan",
-  sudan: "Sudan",
-  togo: "Togo",
-  tunisia: "Tunisia",
-  uganda: "Uganda",
-  zambia: "Zambia",
-  afghanistan: "Afghanistan",
-  bahrain: "Bahrain",
-  bangladesh: "Bangladesh",
-  armenia: "Armenia",
-  bhutan: "Bhutan",
-  myanmar: "Myanmar",
-  cambodia: "Cambodia",
-  georgia: "Georgia",
-  iraq: "Iraq",
-  jordan: "Jordan",
-  lebanon: "Lebanon",
-  maldives: "Maldives",
-  mongolia: "Mongolia",
-  oman: "Oman",
-  qatar: "Qatar",
-  vietnam: "Vietnam",
-  turkmenistan: "Turkmenistan",
-  uzbekistan: "Uzbekistan",
-  yemen: "Yemen",
-  albania: "Albania",
-  andorra: "Andorra",
-  austria: "Austria",
-  "bosnia and herzegovina": "Bosnia and Herzegovina",
-  bulgaria: "Bulgaria",
-  belarus: "Belarus",
-  croatia: "Croatia",
-  cyprus: "Cyprus",
-  "czech republic": "Czech Republic",
-  estonia: "Estonia",
-  finland: "Finland",
-  hungary: "Hungary",
-  iceland: "Iceland",
-  ireland: "Ireland",
-  latvia: "Latvia",
-  liechtenstein: "Liechtenstein",
-  lithuania: "Lithuania",
-  luxembourg: "Luxembourg",
-  malta: "Malta",
-  monaco: "Monaco",
-  moldova: "Moldova",
-  montenegro: "Montenegro",
-  norway: "Norway",
-  romania: "Romania",
-  serbia: "Serbia",
-  slovakia: "Slovakia",
-  slovenia: "Slovenia",
-  switzerland: "Switzerland",
-  macedonia: "Macedonia",
-  bahamas: "Bahamas",
-  belize: "Belize",
-  "british virgin islands": "British Virgin Islands",
-  "costa rica": "Costa Rica",
-  cuba: "Cuba",
-  dominica: "Dominica",
-  haiti: "Haiti",
-  honduras: "Honduras",
-  jamaica: "Jamaica",
-  aruba: "Aruba",
-  panama: "Panama",
-  "puerto rico": "Puerto Rico",
-  "trinidad and tobago": "Trinidad and Tobago",
-  fiji: "Fiji",
-  "new zealand": "New Zealand",
-  bolivia: "Bolivia",
-  paraguay: "Paraguay",
-  uruguay: "Uruguay",
-  venezuela: "Venezuela",
-};
-
-
-const ApiRequests = ({ apiKey , style }) => {
+const ApiRequests = ({ apiKey, style }) => {
   const [defaultCountry, setDefaultCountry] = useState('');
   const [defaultNumber, setDefaultNumber] = useState(1);
   const [rows, setRows] = useState([]);
   const [results, setResults] = useState([]);
   const [isFetching, setIsFetching] = useState(false);
+  const [terminateRequests, setTerminateRequests] = useState(false);
   const [instanceId, setInstanceId] = useState(uuidv4());
 
   const addRow = () => setRows([...rows, { url: '', country: defaultCountry, number: defaultNumber, isValid: true }]);
@@ -192,29 +49,72 @@ const ApiRequests = ({ apiKey , style }) => {
       return;
     }
     setIsFetching(true);
+    setTerminateRequests(false);
     setResults([]);
     const newResults = [];
     const currentInstanceId = uuidv4();
     setInstanceId(currentInstanceId);
 
     for (const row of rows) {
+      if (terminateRequests) break;
       for (let i = 0; i < row.number; i++) {
+        if (terminateRequests) break;
         const response = await apiCall(row.url, row.country || defaultCountry, currentInstanceId, apiKey);
         const timestamp = new Date().toLocaleTimeString();
         newResults.push({ ...response, timestamp });
         setResults([...newResults]); // Update results dynamically
 
         // Add a random delay between 1 to 3 seconds
-        const randomDelay = Math.floor(Math.random() * (3000 - 1000 + 1)) + 1000;
+        const randomDelay = Math.random() * (10000 - 1000) + 1000;
         await delay(randomDelay);
       }
     }
     setIsFetching(false);
   };
 
+  const handleTerminate = () => {
+    setTerminateRequests(true);
+    setIsFetching(false);
+  };
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const text = event.target.result;
+      const urls = text.split(/\r?\n/).filter((url) => url.trim() !== '');
+      const newRows = urls.map((url) => ({ url, country: defaultCountry, number: defaultNumber, isValid: true }));
+      setRows([...rows, ...newRows]);
+    };
+    reader.readAsText(file);
+  };
+
   return (
-    <div style={{ top:'50px', border:'1px solid grey',  width: '45%', padding: '20px', margin: '20px', backgroundColor: 'white', borderRadius: '8px' , ...style }}>
-      <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>API Requests</h2>
+    <div
+      style={{
+        border: '1px solid grey',
+        width: '45%',
+        padding: '20px',
+        margin: '20px',
+        backgroundColor: 'white',
+        borderRadius: '8px',
+        ...style,
+      }}
+    >
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <h2 style={{ textAlign: 'center' }}>API Requests</h2>
+        <label style={{ cursor: 'pointer', padding: '10px 16px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '4px' }}>
+          Upload CSV
+          <input
+            type="file"
+            accept=".csv"
+            onChange={handleFileUpload}
+            style={{ display: 'none' }}
+          />
+        </label>
+      </div>
       <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
         <select
           value={defaultCountry}
@@ -289,7 +189,20 @@ const ApiRequests = ({ apiKey , style }) => {
           </button>
         </div>
       ))}
-      <div style={{ textAlign: 'right', marginTop: '20px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
+        <button
+          onClick={handleTerminate}
+          disabled={!isFetching}
+          style={{
+            padding: '12px 24px',
+            backgroundColor: isFetching ? '#dc3545' : '#6c757d',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+          }}
+        >
+          Terminate
+        </button>
         <button
           onClick={handleRequest}
           disabled={isFetching}

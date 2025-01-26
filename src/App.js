@@ -23,8 +23,9 @@ const App = () => {
 
       {/* Two instances of ApiRequests */}
       {/* <div style={{ display: 'flex', gap: '20px', marginTop: '50px' }}> */}
-        <ApiRequests apiKey={apiKey} style={{ position: 'absolute', left: '0' }} />
-        <ApiRequests apiKey={apiKey} style={{ position: 'absolute', right: '0' }}  />
+        <ApiRequests apiKey={apiKey} style={{ position: 'absolute', left: '0' , top:'50px' }} />
+        <ApiRequests apiKey={apiKey} style={{ position: 'absolute', right: '0' , top:'50px',}}  />
+   
       {/* </div> */}
     </div>
   );
