@@ -43,39 +43,97 @@ const ApiRequests = ({ apiKey, style }) => {
       alert('Please provide an API key.');
       return;
     }
-
+  
     if (!validateRows()) {
       alert('Please fill out all fields correctly.');
       return;
     }
+  
     setIsFetching(true);
     setTerminateRequests(false);
     setResults([]);
     const newResults = [];
     const currentInstanceId = uuidv4();
     setInstanceId(currentInstanceId);
-
-    for (const row of rows) {
-      if (terminateRequests) break;
-      for (let i = 0; i < row.number; i++) {
-        if (terminateRequests) break;
-        const response = await apiCall(row.url, row.country || defaultCountry, currentInstanceId, apiKey);
-        const timestamp = new Date().toLocaleTimeString();
-        newResults.push({ ...response, timestamp });
-        setResults([...newResults]); // Update results dynamically
-
-        // Add a random delay between 1 to 3 seconds
-        const randomDelay = Math.random() * (10000 - 1000) + 1000;
-        await delay(randomDelay);
+  
+    const abortController = new AbortController();
+    const signal = abortController.signal;
+  
+    // Save the abortController in state
+    setTerminateRequests({ abortController, signal });
+  
+    try {
+      for (const row of rows) {
+        // Check termination at the start of the outer loop
+        if (terminateRequests) {
+          console.log('Terminating outer loop...');
+          abortController.abort(); // Cancel all requests
+          return; // Exit the function immediately
+        }
+  
+        for (let i = 0; i < row.number; i++) {
+          // Check termination at the start of the inner loop
+          if (terminateRequests) {
+            console.log('Terminating inner loop...');
+            abortController.abort(); // Cancel all requests
+            return; // Exit the function immediately
+          }
+  
+          try {
+            // Make the API call
+            const response = await apiCall(row.url, row.country || defaultCountry, currentInstanceId, apiKey, { signal });
+  
+            // Check termination after the API call
+            if (terminateRequests) {
+              console.log('Terminating after response...');
+              abortController.abort(); // Cancel requests after response
+              return; // Exit the function immediately
+            }
+  
+            // Add the response to results
+            const timestamp = new Date().toLocaleTimeString();
+            newResults.push({ ...response, timestamp });
+  
+            // Update results only if not terminated
+            if (!terminateRequests) {
+              setResults([...newResults]);
+            }
+  
+            // Random delay, only if not terminated
+            const randomDelay = Math.random() * (1000 - 500) + 500;
+            if (!terminateRequests) {
+              await delay(randomDelay);
+            } else {
+              console.log('Terminating during delay...');
+              return; // Exit the function immediately
+            }
+          } catch (error) {
+            if (axios.isCancel(error)) {
+              console.log('Request canceled via AbortController');
+            } else {
+              console.error('Error in request:', error);
+            }
+            return; // Exit on error or termination
+          }
+        }
       }
+    } finally {
+      console.log('Cleaning up after termination...');
+      setTerminateRequests(false); // Reset termination flag
+      setIsFetching(false); // Stop fetching state
     }
-    setIsFetching(false);
   };
-
+  
   const handleTerminate = () => {
-    setTerminateRequests(true);
-    setIsFetching(false);
+    if (terminateRequests && terminateRequests.abortController) {
+      terminateRequests.abortController.abort(); // Abort requests
+      console.log('AbortController triggered');
+    }
+    setTerminateRequests(true); // Set termination flag
+    setIsFetching(false); // Stop fetching state
   };
+  
+  
 
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
@@ -218,40 +276,39 @@ const ApiRequests = ({ apiKey, style }) => {
         </button>
       </div>
       {results.length > 0 && (
-        <table style={{ marginTop: '20px', width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr>
-              <th style={{ border: '1px solid #ddd', padding: '10px' }}>URL</th>
-              <th style={{ border: '1px solid #ddd', padding: '10px' }}>Provider</th>
-              <th style={{ border: '1px solid #ddd', padding: '10px' }}>Status</th>
-              <th style={{ border: '1px solid #ddd', padding: '10px' }}>Redirected To</th>
-              <th style={{ border: '1px solid #ddd', padding: '10px' }}>Instance</th>
-              <th style={{ border: '1px solid #ddd', padding: '10px' }}>Time</th>
-            </tr>
-          </thead>
-          <tbody>
-            {results.map((result, index) => (
-              <tr key={index}>
-                <td style={{ border: '1px solid #ddd', padding: '10px' }}>{result.url}</td>
-                <td style={{ border: '1px solid #ddd', padding: '10px' }}>{result.provider}</td>
-                <td
-                  style={{
-                    border: '1px solid #ddd',
-                    padding: '10px',
-                    color: result.success ? 'green' : 'red',
-                  }}
-                >
-                  {result.success ? 'Success' : 'Failed'}
-                </td>
-                <td style={{ border: '1px solid #ddd', padding: '10px' }}>
-                  {result.redirectedTo || 'N/A'}
-                </td>
-                <td style={{ border: '1px solid #ddd', padding: '10px' }}>{result.instance.slice(0, 5)}</td>
-                <td style={{ border: '1px solid #ddd', padding: '10px' }}>{result.timestamp}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+         <table style={{fontSize :'12px', textAlign : 'left' , marginTop: '20px', width: '100%', borderCollapse: 'collapse' }}>
+         <thead>
+           <tr>
+             <th style={{ border: '1px solid #ddd', padding: '10px', textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden', maxWidth: '150px' }}>URL</th>
+             <th style={{ border: '1px solid #ddd', padding: '10px', textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden', maxWidth: '150px' }}>Provider</th>
+             <th style={{ border: '1px solid #ddd', padding: '10px', textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden', maxWidth: '150px' }}>Status</th>
+             <th style={{ border: '1px solid #ddd', padding: '10px', textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden', maxWidth: '150px' }}>Redirected To</th>
+             <th style={{ border: '1px solid #ddd', padding: '10px' }}>Time</th>
+           </tr>
+         </thead>
+         <tbody>
+           {results.map((result, index) => (
+             <tr key={index}>
+               <td style={{ border: '1px solid #ddd', padding: '10px', textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden', maxWidth: '150px' }}>{result.url}</td>
+               <td style={{ border: '1px solid #ddd', padding: '10px', textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden', maxWidth: '150px' }}>{result.provider}</td>
+               <td
+                 style={{
+                   border: '1px solid #ddd',
+                   padding: '10px',
+                   color: result.status === 'cancelled' ? 'orange' : result.success ? 'green' : 'red',
+                   textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden', maxWidth: '150px'
+                 }}
+               >
+                 {result.status === 'cancelled' ? 'Cancelled' : result.success ? 'Success' : 'Failed'}
+               </td>
+               <td style={{ border: '1px solid #ddd', padding: '10px', textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden', maxWidth: '150px' }}>
+                 {result.redirectedTo || 'N/A'}
+               </td>
+               <td style={{ border: '1px solid #ddd', padding: '10px' }}>{result.timestamp}</td>
+             </tr>
+           ))}
+         </tbody>
+       </table>
       )}
     </div>
   );
