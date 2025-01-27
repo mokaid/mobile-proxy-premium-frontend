@@ -5,7 +5,7 @@ import countryList from './countries';
 // Utility function to introduce delay
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const ApiRequests = ({ apiKey, style }) => {
+const ApiRequests = ({ apiKey, style , poolNumber }) => {
   const [defaultCountry, setDefaultCountry] = useState('');
   const [defaultNumber, setDefaultNumber] = useState(1);
   const [rows, setRows] = useState([]);
@@ -152,17 +152,12 @@ const ApiRequests = ({ apiKey, style }) => {
   return (
     <div
       style={{
-        border: '1px solid grey',
-        width: '45%',
-        padding: '20px',
-        margin: '20px',
-        backgroundColor: 'white',
-        borderRadius: '8px',
+   
         ...style,
       }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h2 style={{ textAlign: 'center' }}>API Requests</h2>
+        <h2 style={{ textAlign: 'center' }}>Proxy Requests Pool { poolNumber }</h2>
         <label style={{ cursor: 'pointer', padding: '10px 16px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '4px' }}>
           Upload CSV
           <input
@@ -195,7 +190,7 @@ const ApiRequests = ({ apiKey, style }) => {
         />
         <button
           onClick={addRow}
-          style={{ padding: '10px 16px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '4px' }}
+          style={{cursor: 'pointer', padding: '10px 16px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '4px' }}
         >
           Add URL
         </button>
@@ -241,7 +236,7 @@ const ApiRequests = ({ apiKey, style }) => {
           />
           <button
             onClick={() => removeRow(index)}
-            style={{ padding: '10px 16px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px' }}
+            style={{ cursor: 'pointer', padding: '10px 16px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px' }}
           >
             Remove
           </button>
@@ -252,6 +247,7 @@ const ApiRequests = ({ apiKey, style }) => {
           onClick={handleTerminate}
           disabled={!isFetching}
           style={{
+            cursor: 'pointer',
             padding: '12px 24px',
             backgroundColor: isFetching ? '#dc3545' : '#6c757d',
             color: 'white',
@@ -265,6 +261,7 @@ const ApiRequests = ({ apiKey, style }) => {
           onClick={handleRequest}
           disabled={isFetching}
           style={{
+            cursor: 'pointer',
             padding: '12px 24px',
             backgroundColor: isFetching ? '#6c757d' : '#28a745',
             color: 'white',
