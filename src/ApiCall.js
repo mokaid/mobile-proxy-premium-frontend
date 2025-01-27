@@ -2,9 +2,10 @@ import axios from 'axios';
 
 const apiCall = async (url, country, instance, apiKey, { signal }) => {
   try {
-    console.log('Signal state before request:', { signal, aborted: signal.aborted });
     const response = await axios.post(
       'https://mobile-proxy-premium-backend-xx9m.onrender.com/api/proxy',
+      // 'http://localhost:3000/api/proxy',
+
       { url, country, instance },
       {
         headers: {
