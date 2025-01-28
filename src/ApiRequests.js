@@ -14,11 +14,11 @@ const ApiRequests = ({ apiKey, style, poolNumber }) => {
   const [isFetching, setIsFetching] = useState(false);
   const [terminateRequests, setTerminateRequests] = useState(null); // Store AbortController
   const [instanceId, setInstanceId] = useState(uuidv4());
+  const [selectedImage, setSelectedImage] = useState(null); // For displaying enlarged image
 
-  // Function to reset the component to its original state
   const handleReset = () => {
     if (terminateRequests) {
-      terminateRequests.abort(); // Abort any ongoing requests
+      terminateRequests.abort();
       console.log('Requests aborted during reset.');
     }
     setDefaultCountry('');
@@ -97,7 +97,7 @@ const ApiRequests = ({ apiKey, style, poolNumber }) => {
             newResults.push({ ...response, timestamp });
             setResults([...newResults]);
             const randomDelay = Math.random() * (1000 - 500) + 500;
-            await delay(randomDelay);
+            // await delay(randomDelay);
           } catch (error) {
             if (abortController.signal.aborted) {
               console.log('Request aborted.');
@@ -115,7 +115,7 @@ const ApiRequests = ({ apiKey, style, poolNumber }) => {
 
   const handleTerminate = () => {
     if (terminateRequests) {
-      terminateRequests.abort(); // Abort ongoing requests
+      terminateRequests.abort();
       console.log('All requests terminated.');
     }
     setIsFetching(false);
@@ -124,7 +124,7 @@ const ApiRequests = ({ apiKey, style, poolNumber }) => {
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-  
+
     const reader = new FileReader();
     reader.onload = (event) => {
       const text = event.target.result;
@@ -136,12 +136,11 @@ const ApiRequests = ({ apiKey, style, poolNumber }) => {
         isValid: true,
       }));
       setRows([...rows, ...newRows]);
-  
+
       e.target.value = ''; // Reset the file input value
     };
     reader.readAsText(file);
   };
-  
 
   return (
     <div
@@ -151,7 +150,7 @@ const ApiRequests = ({ apiKey, style, poolNumber }) => {
       }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h3 style={{ textAlign: 'center' }}>Proxy Requests Pool {poolNumber}</h3>
+        <h3 style={{ textAlign: 'center' }}>Proxy Pool {poolNumber}</h3>
         <label
           style={{
             cursor: 'pointer',
@@ -301,76 +300,22 @@ const ApiRequests = ({ apiKey, style, poolNumber }) => {
         >
           {isFetching ? 'Fetching...' : 'Send Requests'}
         </button>
-    
       </div>
 
-      {results.length > 0  && (
-        <table
-          style={{
-            fontSize: '12px',
-            textAlign: 'left',
-            marginTop: '20px',
-            width: '100%',
-            borderCollapse: 'collapse',
-          }}
-        >
-          <thead>
-            <tr>
-              <th
-                style={{
-                  border: '1px solid #ddd',
-                  padding: '10px',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  maxWidth: '150px',
-                }}
-              >
-                URL
-              </th>
-              <th
-                style={{
-                  border: '1px solid #ddd',
-                  padding: '10px',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  maxWidth: '150px',
-                }}
-              >
-                Provider
-              </th>
-              <th
-                style={{
-                  border: '1px solid #ddd',
-                  padding: '10px',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  maxWidth: '150px',
-                }}
-              >
-                Status
-              </th>
-              <th
-                style={{
-                  border: '1px solid #ddd',
-                  padding: '10px',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  maxWidth: '150px',
-                }}
-              >
-                Redirected To
-              </th>
-              <th style={{ border: '1px solid #ddd', padding: '10px' }}>Time</th>
-            </tr>
-          </thead>
-          <tbody>
-            {results.map((result, index) => (
-              <tr key={index}>
-                <td
+      {results.length > 0 && (
+        <>
+          <table
+            style={{
+              fontSize: '12px',
+              textAlign: 'left',
+              marginTop: '20px',
+              width: '100%',
+              borderCollapse: 'collapse',
+            }}
+          >
+            <thead>
+              <tr>
+                <th
                   style={{
                     border: '1px solid #ddd',
                     padding: '10px',
@@ -380,9 +325,9 @@ const ApiRequests = ({ apiKey, style, poolNumber }) => {
                     maxWidth: '150px',
                   }}
                 >
-                  {result.url}
-                </td>
-                <td
+                  URL
+                </th>
+                <th
                   style={{
                     border: '1px solid #ddd',
                     padding: '10px',
@@ -392,22 +337,9 @@ const ApiRequests = ({ apiKey, style, poolNumber }) => {
                     maxWidth: '150px',
                   }}
                 >
-                  {result.provider}
-                </td>
-                <td
-                  style={{
-                    border: '1px solid #ddd',
-                    padding: '10px',
-                    color: result.status === 'cancelled' ? 'orange' : result.success ? 'green' : 'red',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    maxWidth: '150px',
-                  }}
-                >
-                  {result.status === 'cancelled' ? 'Cancelled' : result.success ? 'Success' : 'Failed'}
-                </td>
-                <td
+                  Provider
+                </th>
+                <th
                   style={{
                     border: '1px solid #ddd',
                     padding: '10px',
@@ -417,13 +349,106 @@ const ApiRequests = ({ apiKey, style, poolNumber }) => {
                     maxWidth: '150px',
                   }}
                 >
-                  {result.redirectedTo || 'N/A'}
-                </td>
-                <td style={{ border: '1px solid #ddd', padding: '10px' }}>{result.timestamp}</td>
+                  Status
+                </th>
+                <th style={{ border: '1px solid #ddd', padding: '10px' }}>Time</th>
+                <th style={{ border: '1px solid #ddd', padding: '10px' }}>Screenshot</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {results.map((result, index) => (
+                <tr key={index}>
+                  <td
+                    style={{
+                      border: '1px solid #ddd',
+                      padding: '10px',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      maxWidth: '150px',
+                    }}
+                  >
+                    {result.url}
+                  </td>
+                  <td
+                    style={{
+                      border: '1px solid #ddd',
+                      padding: '10px',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      maxWidth: '150px',
+                    }}
+                  >
+                    {result.provider}
+                  </td>
+                  <td
+                    style={{
+                      border: '1px solid #ddd',
+                      padding: '10px',
+                      color: result.status === 'cancelled' ? 'orange' : result.success ? 'green' : 'red',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      maxWidth: '150px',
+                    }}
+                  >
+                    {result.status === 'cancelled' ? 'Cancelled' : result.success ? 'Success' : 'Failed'}
+                  </td>
+                  <td style={{ border: '1px solid #ddd', padding: '10px' }}>{result.timestamp}</td>
+                  <td
+                    style={{
+                      border: '1px solid #ddd',
+                      padding: '10px',
+                      textAlign: 'center',
+                    }}
+                  >
+                    {result.screenshot ? (
+                      <img
+                        src={`data:image/jpeg;base64,${result.screenshot}`}
+                        alt="Screenshot"
+                        style={{
+                          maxWidth: '50px',
+                          maxHeight: '50px',
+                          cursor: 'pointer',
+                        }}
+                        onClick={() => setSelectedImage(`data:image/jpeg;base64,${result.screenshot}`)}
+                      />
+                    ) : (
+                      'N/A'
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {/* Modal for enlarged screenshot */}
+          {selectedImage && (
+            <div
+              onClick={() => setSelectedImage(null)}
+              style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                cursor: 'pointer',
+                zIndex:1000
+              }}
+            >
+              <img
+                src={selectedImage}
+                alt="Enlarged Screenshot"
+                style={{ maxWidth: '90%', maxHeight: '90%' }}
+              />
+            </div>
+          )}
+        </>
       )}
     </div>
   );

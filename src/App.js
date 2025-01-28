@@ -58,6 +58,8 @@ const App = () => {
       boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Subtle shadow
       padding: '20px', // Padding inside the component
       width: '95%',
+      maxHeight: '600px', // Limit the height to 600px
+      overflowY: 'auto', // Add vertical scrolling if content exceeds 600px
     }}
   >
     <ApiRequests apiKey={apiKey} poolNumber={1} />
@@ -70,6 +72,8 @@ const App = () => {
       boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
       padding: '20px',
       width: '95%',
+      maxHeight: '600px', // Limit the height to 600px
+      overflowY: 'auto', // Add vertical scrolling if content exceeds 600px
     }}
   >
     <ApiRequests apiKey={apiKey} poolNumber={2}  />
@@ -82,6 +86,8 @@ const App = () => {
       boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
       padding: '20px',
       width: '95%',
+      maxHeight: '600px', // Limit the height to 600px
+      overflowY: 'auto', // Add vertical scrolling if content exceeds 600px
     }}
   >
     <ApiRequests apiKey={apiKey} poolNumber={3} />
@@ -94,6 +100,8 @@ const App = () => {
       boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
       padding: '20px',
       width: '95%',
+      maxHeight: '600px', // Limit the height to 600px
+      overflowY: 'auto', // Add vertical scrolling if content exceeds 600px
     }}
   >
     <ApiRequests apiKey={apiKey} poolNumber={4} />
@@ -107,6 +115,8 @@ const App = () => {
       boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
       padding: '20px',
       width: '95%',
+      maxHeight: '600px', // Limit the height to 600px
+      overflowY: 'auto', // Add vertical scrolling if content exceeds 600px
     }}
   >
     <ApiRequests apiKey={apiKey} poolNumber={5} />
@@ -120,6 +130,8 @@ const App = () => {
       boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
       padding: '20px',
       width: '95%',
+      maxHeight: '600px', // Limit the height to 600px
+      overflowY: 'auto', // Add vertical scrolling if content exceeds 600px
     }}
   >
     <ApiRequests apiKey={apiKey} poolNumber={6} />
