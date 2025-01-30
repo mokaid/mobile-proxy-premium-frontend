@@ -6,7 +6,7 @@ import countryList from './countries';
 // Utility function to introduce delay
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const ApiRequests = ({ apiKey, style, poolNumber }) => {
+const ApiRequests = ({ apiKey, style, poolNumber , host }) => {
   const [defaultCountry, setDefaultCountry] = useState('');
   const [defaultNumber, setDefaultNumber] = useState(1);
   const [rows, setRows] = useState([]);
@@ -91,7 +91,8 @@ const ApiRequests = ({ apiKey, style, poolNumber }) => {
               row.country || defaultCountry,
               currentInstanceId,
               apiKey,
-              { signal: abortController.signal }
+              { signal: abortController.signal },
+              host
             );
             const timestamp = new Date().toLocaleTimeString();
             newResults.push({ ...response, timestamp });

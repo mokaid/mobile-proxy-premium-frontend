@@ -1,10 +1,10 @@
 import axios from 'axios';
 
-const apiCall = async (url, country, instance, apiKey, { signal }) => {
+const apiCall = async (url, country, instance, apiKey, { signal } , host) => {
   try {
     const response = await axios.post(
-      // 'http://localhost:3000/api/proxy', // Update to match your backend endpoint
-      'https://mobile-proxy-premium-backend-xx9m.onrender.com/api/proxy',
+      `${host}/api/proxy`, // Update to match your backend endpoint
+      // 'https://mobile-proxy-premium-backend-xx9m.onrender.com/api/proxy',
       { url, country, instance },
       {
         headers: {
