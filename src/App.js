@@ -6,7 +6,7 @@ const App = () => {
   const [apiKey, setApiKey] = useState(''); // Initialize `apiKey` state with useState
   const [showCharts, setShowCharts] = useState(false); // State to toggle between API Requests and Charts
   // const host = 'http://localhost:3000';
-  const host = 'https://mobile-proxy-premium-backend-xx9m.onrender.com'
+  const host = 'http://147.93.120.192:3000'
 
   return (
     <div>
