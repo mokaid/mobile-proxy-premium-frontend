@@ -6,7 +6,7 @@ import countryList from './countries';
 // Utility function to introduce delay
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const ApiRequests = ({ apiKey, style, poolNumber , host }) => {
+const ApiRequests = ({ apiKey, style, poolNumber, host }) => {
   const [defaultCountry, setDefaultCountry] = useState('');
   const [defaultNumber, setDefaultNumber] = useState(1);
   const [rows, setRows] = useState([]);
@@ -15,6 +15,7 @@ const ApiRequests = ({ apiKey, style, poolNumber , host }) => {
   const [terminateRequests, setTerminateRequests] = useState(null); // Store AbortController
   const [instanceId, setInstanceId] = useState(uuidv4());
   const [selectedImage, setSelectedImage] = useState(null); // For displaying enlarged image
+  const [selectedMode, setSelectedMode] = useState('proxyAuthOxylabsMobile'); // Default mode
 
   const handleReset = () => {
     if (terminateRequests) {
@@ -86,14 +87,18 @@ const ApiRequests = ({ apiKey, style, poolNumber , host }) => {
           if (abortController.signal.aborted) return;
 
           try {
+
             const response = await apiCall(
               row.url,
               row.country || defaultCountry,
               currentInstanceId,
               apiKey,
               { signal: abortController.signal },
-              host
+              host,
+              selectedMode,  // Pass the selected proxy mode
+
             );
+            
             const timestamp = new Date().toLocaleTimeString();
             newResults.push({ ...response, timestamp });
             setResults([...newResults]);
@@ -151,7 +156,40 @@ const ApiRequests = ({ apiKey, style, poolNumber , host }) => {
       }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h3 style={{ textAlign: 'center' }}>Proxy Pool {poolNumber}</h3>
+      <h4 style={{ textAlign: 'left' }}>Pool {poolNumber} Mode</h4>
+<div style={{ padding: '15px', borderRadius: '5px' , marginLeft :'-160px' }}>
+  <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+    <label>
+      <input
+        type="radio"
+        value="proxyAuthOxylabsMobile"
+        checked={selectedMode === 'proxyAuthOxylabsMobile'}
+        onChange={(e) => setSelectedMode(e.target.value)}
+      />{' '}
+      Mobile
+    </label>
+    <label>
+      <input
+        type="radio"
+        value="proxyAuthOxylabsResidential"
+        checked={selectedMode === 'proxyAuthOxylabsResidential'}
+        onChange={(e) => setSelectedMode(e.target.value)}
+      />{' '}
+      Residential
+    </label>
+    <label>
+      <input
+        type="radio"
+        value="Hybrid"
+        checked={selectedMode === 'Hybrid'}
+        onChange={(e) => setSelectedMode(e.target.value)}
+      />{' '}
+      Hybrid
+    </label>
+  </div>
+</div>
+
+    
         <label
           style={{
             cursor: 'pointer',
@@ -439,7 +477,7 @@ const ApiRequests = ({ apiKey, style, poolNumber , host }) => {
                 justifyContent: 'center',
                 alignItems: 'center',
                 cursor: 'pointer',
-                zIndex:1000
+                zIndex: 1000
               }}
             >
               <img

@@ -1,11 +1,10 @@
 import axios from 'axios';
 
-const apiCall = async (url, country, instance, apiKey, { signal } , host) => {
+const apiCall = async (url, country, instance, apiKey, { signal } , host , mode) => {
   try {
     const response = await axios.post(
       `${host}/api/proxy`, // Update to match your backend endpoint
-      // 'https://mobile-proxy-premium-backend-xx9m.onrender.com/api/proxy',
-      { url, country, instance },
+      { url, country, instance , mode },
       {
         headers: {
           Authorization: `Bearer ${apiKey}`,
