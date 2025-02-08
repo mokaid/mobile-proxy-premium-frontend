@@ -9,9 +9,9 @@ const App = () => {
   // const host = "http://localhost:3000"; // Update this for production
   // const host = 'http://localhost:3000';
   // const host = 'http://147.93.120.192:3000'
-  // const host = 'https://mobile-proxy-premium-backend-xx9m.onrender.com'
+  const host = 'https://mobile-proxy-premium-backend-xx9m.onrender.com'
   // const host = 'https://alexproxypool.click';
-  host = '147.93.113.104'
+  // host = '147.93.113.104'
 
   return (
     <>
