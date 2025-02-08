@@ -77,7 +77,7 @@ const ApiKeyValidation = ({ onValidate , host }) => {
           value={apiKey}
           onChange={(e) => setApiKey(e.target.value)}
           style={{
-            width: "100%",
+            width: "370px",
             padding: "12px",
             fontSize: "16px",
             fontWeight: "bold", // Bold text
